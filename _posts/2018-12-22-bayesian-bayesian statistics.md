@@ -5,11 +5,10 @@ date: 2018-12-22 15:24:00 -0400
 categories: Bayesian
 ---
 ## Frequentist
-Suppose we toss a coin and guess it is head or tail. Then, P(H) indicates the probability of getting head side. In frequentist view, we see relative frequency of events. That is, when we toss the coin infinite number of times, and we get head side half of times, then we can define that P(H) equals 1/2. The true P(H) value is unknown but a fixed constant.
-Thus, in the frequentist paradigm, it tries to be objective in defining probabilities.
+Suppose we toss a coin and guess it is head or tail. Then, P(H) indicates the probability of getting the head side. In frequentist view, we see relative frequency of events. That is when we toss the coin infinite number of times and get head side half of times, then we can define P(H) equals 1/2. The true P(H) value is unknown but a fixed constant. Thus, in the frequentist paradigm, it tries to be objective in defining probabilities.
 
 ### Binominal Example
-Now, we want to know whether a coin is fair or not. As a result of tossing the coin 100 times, we get 55 heads and 45 tails. Based on the central limit theorem, the summed number of head(x) will approximately follow a normal distribution.
+Now, we want to know whether a coin is fair or not, which is kind of the same question above. As a result of tossing the coin 100 times, we get 55 heads and 45 tails. Based on the central limit theorem, the summed number of the head(x) will approximately follow a normal distribution.
 \\[ \sum_{i=1}^{100} x_i \sim N(100p, 100p(1-p))  \\] 
 That is, the 95% confidence interval would be $$  100p \pm 1.96 \sqrt{100p(1-p)}$$.
 Since we observed head side 55 times, $$ \hat p(H)= 0.55 $$ .
@@ -65,8 +64,36 @@ Now, we can apply Bayes' rule above, and infer the posterior density.
 \\[ p(\theta | y= 55) \propto 1*\theta^{55}(1-\theta)^{45} \\]
 \\[ \propto \theta^{55} (1-\theta)^{45}, 0 <\theta < 1 \\]
 
-We can avoid calculating the normalizing factor $$ p(y) $$, because it is proportional.
+We can avoid calculating the normalizing factor $$ p(y) $$ by finding similar density function, Beta. <br/>
+\\[ \frac{\gamma(\alpha + \beta)}{\gamma(\alpha)\gamma(\beta)} \theta^{\alpha-1} (1-\theta)^{\beta -1}
+\propto \theta^{\alpha-1} (1-\theta)^{\beta-1}
+ \\]
+ Since alpha and beta is just constants, we can omit gamma function. When we compare this Beta function with above posterior, we can identify the posterior for theta tiven y equals 55 with alpha equals 56, and beta equals 46. By directly looking at the beta table, we can avoid calculating calculus. 
+\\[ \theta | y = 55 \sim \beta(\alpha = 56, \beta = 46) \\]
 
+Plotting this posterior:
+``` r
+curve(dbeta(x, 56, 46), 0, 1, ylab=" Density")
+```
+
+<p align="center"> 
+<img src="../assets/img/bayesian/w1-post-beta.jpg" style="width: 70%">
+</p>
+
+When flat prior used, most posterior probability ranges around 0.4 to 0.7.
+
+Similar to frequentist confidence interval, we can use posterior credible interval, which indicates the interval containing $$ \theta $$ with specified posterior probability. One of ways to get a posterior interval is calculate $$ 100(1-\alpha)% $$ ranging between $$ \alpha /2 $$ and $$ 1-\alpha /2 $$.
+This is called a central posterior interval. <br/>
+Throughout simulating Beta distribution, we can get the posterior interval.
+``` r
+posterior.samples = rbeta(1000, 56, 46)
+quantile(posterior.samples, c(0.05/2, 1-0.05/2))
+
+2.5%     97.5%
+0.4520435 0.6466100
+```
+
+Considering that confidence interval was 0.452 to 0.657, both give similar results. However, the meaning is different. Unlike frequentist which speaks of interval in repeated practice, the posterior interval can be directly regarded as the probability of having the parameter.
 
 ### Reference
 - STAT 578: Advanced Bayesian Modeling by Professor Trevor Park
